@@ -98,7 +98,7 @@ class TAPTest:
             self.todo = results.directive[0][0] == 'TODO'  # noqa: T101
 
     @classmethod
-    def bailedTest(cls: type[Self], num: int) -> 'TAPTest':
+    def bailed_test(cls: type[Self], num: int) -> 'TAPTest':
         ret = TAPTest(empty.parse_string(''))
         ret.num = num
         ret.skipped = True
@@ -125,7 +125,7 @@ class TAPSummary:
                 # ~ print "Test suite aborted: " + res.reason
                 # ~ self.failedTests += expected[i:]
                 self.bail = True
-                self.skipped_tests += [TAPTest.bailedTest(ii) for ii in expected[i:]]
+                self.skipped_tests += [TAPTest.bailed_test(ii) for ii in expected[i:]]
                 self.bailReason = res.reason  # pyright: ignore
                 break
 
