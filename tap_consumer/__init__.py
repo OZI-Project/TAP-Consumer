@@ -137,7 +137,6 @@ class TAPSummary:
             expected = list(range(1, int(results.plan.ubound) + 1))  # pyright: ignore
         else:
             expected = list(range(1, len(results.tests) + 1))
-        print(results.tests)
         for i, res in enumerate(results.tests):
             # test for bail out
             if res.BAIL:  # pyright: ignore
