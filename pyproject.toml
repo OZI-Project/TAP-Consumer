@@ -22,7 +22,7 @@ author="Eden Ross Duff MSc"
 author-email="help@oziproject.dev"
 description-file="README.rst"
 license="Apache-2.0 WITH LLVM-exception"
-download-url="https://github.com//TAP-Consumer/archive/refs/tags/{version}.tar.gz"
+download-url="https://github.com/OZI-Project/TAP-Consumer/archive/refs/tags/{version}.tar.gz"
 keywords="TAP,testing,unittest"
 classifiers=[
     "License :: OSI Approved :: Apache Software License",
