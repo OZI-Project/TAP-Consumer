@@ -5,6 +5,9 @@
 ### Fixes
 
 
+* fix: broken symlink — rjdbcm <rjdbcm@outlook.com>
+([`f32e67b`](https://github.com/OZI-Project/TAP-Consumer/commit/f32e67ba0a07551e0c36ff791809369b373363a2))
+
 * fix: add MIT notice — rjdbcm <rjdbcm@outlook.com>
 ([`1e91d29`](https://github.com/OZI-Project/TAP-Consumer/commit/1e91d2948926a26b343e866b473c2b58d188c5f6))
 
