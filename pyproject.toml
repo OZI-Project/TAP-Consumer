@@ -5,6 +5,7 @@ license = {file = "LICENSE.txt"}
 dependencies = [
     'prompt-toolkit',
     'pyparsing',
+    'PyYAML',
 ]
 
 [build-system]
