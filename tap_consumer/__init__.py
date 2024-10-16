@@ -59,11 +59,11 @@ directive = Group(
     ),
 )
 
-commentLine = Suppress('#') + empty + rest_of_line
+comment_line = Suppress('#') + empty + rest_of_line
 version = Suppress('TAP version') + Word(nums[1:], nums, as_keyword=True)
 yaml_end = Suppress('...')
 test_line = Group(
-    Optional(OneOrMore(commentLine + NL))('comments')
+    Optional(OneOrMore(comment_line + NL))('comments')
     + test_status('passed')
     + Optional(integer)('test_number')
     + Optional(description)('description')
@@ -123,18 +123,18 @@ class TAPSummary:
             # test for bail out
             if res.BAIL:  # pyright: ignore
                 # ~ print "Test suite aborted: " + res.reason
-                # ~ self.failedTests += expected[i:]
+                # ~ self.failed_tests += expected[i:]
                 self.bail = True
                 self.skipped_tests += [TAPTest.bailed_test(ii) for ii in expected[i:]]
-                self.bailReason = res.reason  # pyright: ignore
+                self.bail_reason = res.reason  # pyright: ignore
                 break
 
             testnum = i + 1
-            if res.testNumber != '':  # pragma: no cover  # pyright: ignore
-                if testnum != int(res.testNumber):  # pyright: ignore
-                    print('ERROR! test %(testNumber)s out of sequence' % res)
-                testnum = int(res.testNumber)  # pyright: ignore
-            res['testNumber'] = testnum  # pyright: ignore
+            if res.test_number != '':  # pragma: no cover  # pyright: ignore
+                if testnum != int(res.test_number):  # pyright: ignore
+                    print('ERROR! test %(test_number)s out of sequence' % res)
+                testnum = int(res.test_number)  # pyright: ignore
+            res['test_number'] = testnum  # pyright: ignore
 
             test = TAPTest(res)  # pyright: ignore
             if test.passed:
@@ -148,44 +148,42 @@ class TAPSummary:
             if test.todo and test.passed:
                 self.bonus_tests.append(test)
 
-        self.passedSuite = not self.bail and (
+        self.passed_suite = not self.bail and (
             set(self.failed_tests) - set(self.todo_tests) == set()
         )
 
     def summary(  # noqa: C901
-        self: Self, showPassed: bool = False, showAll: bool = False
+        self: Self, show_passed: bool = False, show_all: bool = False
     ) -> str:
-        testListStr = lambda tl: '[' + ','.join(str(t.num) for t in tl) + ']'  # noqa: E731
-        summaryText = [f'TAP version: {self.version}']
-        if showPassed or showAll:
-            summaryText.append(f'PASSED: {testListStr(self.passed_tests)}')  # type: ignore
+        test_list_str = lambda tl: '[' + ','.join(str(t.num) for t in tl) + ']'  # noqa: E731
+        summary_text = [f'TAP version: {self.version}']
+        if show_passed or show_all:
+            summary_text.append(f'PASSED: {test_list_str(self.passed_tests)}')  # type: ignore
         else:  # pragma: no cover
             pass
-        if self.failed_tests or showAll:
-            summaryText.append(f'FAILED: {testListStr(self.failed_tests)}')  # type: ignore
+        if self.failed_tests or show_all:
+            summary_text.append(f'FAILED: {test_list_str(self.failed_tests)}')  # type: ignore
         else:  # pragma: no cover
             pass
-        if self.skipped_tests or showAll:
-            summaryText.append(f'SKIPPED: {testListStr(self.skipped_tests)}')  # type: ignore
+        if self.skipped_tests or show_all:
+            summary_text.append(f'SKIPPED: {test_list_str(self.skipped_tests)}')  # type: ignore
         else:  # pragma: no cover
             pass
-        if self.todo_tests or showAll:
-            summaryText.append(
-                f'TODO: {testListStr(self.todo_tests)}'  # type: ignore  # noqa: T101
+        if self.todo_tests or show_all:
+            summary_text.append(
+                f'TODO: {test_list_str(self.todo_tests)}'  # type: ignore  # noqa: T101
             )
         else:  # pragma: no cover
             pass
-        if self.bonus_tests or showAll:
-            summaryText.append(f'BONUS: {testListStr(self.bonus_tests)}')  # type: ignore
+        if self.bonus_tests or show_all:
+            summary_text.append(f'BONUS: {test_list_str(self.bonus_tests)}')  # type: ignore
         else:  # pragma: no cover
             pass
-        if self.passedSuite:
-            summaryText.append('PASSED')
+        if self.passed_suite:
+            summary_text.append('PASSED')
         else:
-            summaryText.append('FAILED')
-        return '\n'.join(summaryText)
+            summary_text.append('FAILED')
+        return '\n'.join(summary_text)
 
 
-# create TAPSummary objects from tapOutput parsed results, by setting
-# class as parse action
 tap_parser.set_parse_action(TAPSummary)

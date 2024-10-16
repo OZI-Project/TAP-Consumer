@@ -79,5 +79,5 @@ ok 7 - pinged gold
     for test in (test1, test2, test3, test4, test5, test6):
         print(test)
         tapResult = tap_parser.parse_string(test)[0]
-        print(tapResult.summary(showAll=True))  # pyright: ignore
+        print(tapResult.summary(show_all=True))  # pyright: ignore
         print()
