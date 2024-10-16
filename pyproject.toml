@@ -6,6 +6,7 @@ dependencies = [
     'prompt-toolkit',
     'pyparsing',
     'PyYAML',
+    'types-PyYAML',
 ]
 
 [build-system]

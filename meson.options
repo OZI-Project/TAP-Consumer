@@ -19,7 +19,7 @@ option(
     type: 'array',
     value: [
     'OZI.build',
-    uv
+    'uv',
     ]
 )
 option(
