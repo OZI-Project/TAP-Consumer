@@ -27,13 +27,17 @@ ok - created Board
 ok
 ok
 not ok
-    ---
-    yaml-key: val
-    ...
+   ---
+   yaml-key: val
+   ...
 ok
 ok
 ssssssssssssssssssss
 ok
+   ---
+   yaml-key:
+      nested-yaml-key: val
+   ...
 ok
 # +------+------+------+------+
 # |      |16G   |      |05C   |

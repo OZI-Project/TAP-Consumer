@@ -14,10 +14,10 @@
 # distribute, sublicense, and/or sell copies of the Software, and to
 # permit persons to whom the Software is furnished to do so, subject to
 # the following conditions:
-
+#
 # The above copyright notice and this permission notice shall be
 # included in all copies or substantial portions of the Software.
-
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 # EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 # MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -29,6 +29,7 @@
 # Modified to ignore non-TAP input and handle YAML diagnostics
 # Copyright 2024, Eden Ross Duff, MSc
 import sys
+from typing import Any
 
 import yaml
 from pyparsing import CaselessLiteral
@@ -91,11 +92,11 @@ test_line = Group(
         NL
         + Group(
             Suppress('---')
-            + SkipTo(yaml_end)('yaml').set_parse_action(
+            + SkipTo(yaml_end).set_parse_action(
                 lambda t: yaml.safe_load(t[0])  # pyright: ignore
             )
             + yaml_end,
-        ),
+        )('yaml').set_parse_action(lambda t: t.as_dict()),
     ),
 )
 bail_line = Group(Literal('Bail out!')('BAIL') + empty + Optional(rest_of_line)('reason'))
@@ -110,11 +111,13 @@ tap_parser = Optional(Group(Suppress(SkipTo(version)) + version)('version') + NL
 class TAPTest:
     def __init__(self: Self, results: ParseResults) -> None:
         self.num = results.test_number
+        self.description = results.description if results.description else None
         self.passed = results.passed == 'ok'
         self.skipped = self.todo = False
         if results.directive:
             self.skipped = results.directive[0][0] == 'SKIP'
             self.todo = results.directive[0][0] == 'TODO'  # noqa: T101
+        self.yaml = results.yaml['yaml'] if results.yaml else {}  # pyright: ignore
 
     @classmethod
     def bailed_test(cls: type[Self], num: int) -> 'TAPTest':
@@ -124,6 +127,17 @@ class TAPTest:
         return ret
 
 
+def iter_diagnostics(d: dict[int, Any]) -> None:
+    for k, v in d.items():
+        if isinstance(v, dict):
+            iter_diagnostics(v)
+        elif isinstance(v, list):
+            for i in v:
+                iter_diagnostics(i)
+        else:
+            print('{0}: {1}'.format(k, v))
+
+
 class TAPSummary:
     def __init__(self: Self, results: ParseResults) -> None:  # noqa: C901
         self.passed_tests = []
@@ -131,6 +145,7 @@ class TAPSummary:
         self.skipped_tests = []
         self.todo_tests = []
         self.bonus_tests = []
+        self.yaml_diagnostics = {}
         self.bail = False
         self.version = results.version[0] if results.version else 12
         if results.plan:
@@ -155,6 +170,10 @@ class TAPSummary:
             res['test_number'] = testnum  # pyright: ignore
 
             test = TAPTest(res)  # pyright: ignore
+            if test.yaml:
+                self.yaml_diagnostics.update(
+                    {testnum: [{testnum: test.description}] + test.yaml}  # type: ignore
+                )
             if test.passed:
                 self.passed_tests.append(test)
             else:
@@ -195,6 +214,10 @@ class TAPSummary:
             pass
         if self.bonus_tests or show_all:
             summary_text.append(f'BONUS: {test_list_str(self.bonus_tests)}')  # type: ignore
+        else:  # pragma: no cover
+            pass
+        if self.yaml_diagnostics:
+            iter_diagnostics(self.yaml_diagnostics)
         else:  # pragma: no cover
             pass
         if self.passed_suite:
