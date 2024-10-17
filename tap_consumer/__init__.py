@@ -140,6 +140,7 @@ def iter_diagnostics(d: dict[int, Any]) -> None:
 
 
 class TAPSummary:
+    """Summarize a parsed TAP stream."""
     def __init__(self: Self, results: ParseResults) -> None:  # noqa: C901
         self.passed_tests = []
         self.failed_tests = []
