@@ -99,8 +99,9 @@ test_line = Group(
         )('yaml').set_parse_action(lambda t: t.as_dict()),
     ),
 )
-bail_line = Group(Literal('Bail out!')('BAIL') + empty + Optional(rest_of_line)('reason'))
-
+bail_line = Group(
+    CaselessLiteral('Bail out!')('BAIL') + empty + Optional(rest_of_line)('reason')
+)
 tap_parser = Optional(Group(Suppress(SkipTo(version)) + version)('version') + NL) + Optional(
     Group(plan)('plan') + NL,
 ) & Group(OneOrMore((test_line | Suppress(SkipTo(test_line)) + test_line | bail_line) + NL))(
