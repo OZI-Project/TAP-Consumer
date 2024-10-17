@@ -44,6 +44,7 @@ from pyparsing import ParseResults
 from pyparsing import Regex
 from pyparsing import SkipTo
 from pyparsing import Suppress
+from pyparsing import White
 from pyparsing import Word
 from pyparsing import empty
 from pyparsing import nums
@@ -60,7 +61,7 @@ __all__ = ['tap_parser', 'TAPTest', 'TAPSummary']
 # whitespace to just spaces and tabs
 ParserElement.set_default_whitespace_chars(' \t')
 NL = LineEnd().suppress()  # type: ignore
-
+INDENT = Suppress(OneOrMore(White(' ', exact=4)))
 integer = Word(nums)
 plan = '1..' + integer('ubound')
 
@@ -78,7 +79,9 @@ directive = Group(
         | FollowedBy(SKIP) + rest_of_line.copy().set_parse_action(lambda t: ['SKIP', t[0]])
     ),
 )
-
+subtest = Optional(Suppress('# Subtest') + Optional(Suppress(':') + rest_of_line))(
+    'subtest_name'
+)
 comment_line = Suppress('#') + empty + rest_of_line
 version = Suppress('TAP version') + Word(nums[1:], nums, as_keyword=True)
 yaml_end = Suppress('...')
@@ -91,7 +94,8 @@ test_line = Group(
     + Optional(
         NL
         + Group(
-            Suppress('---')
+            Optional(INDENT)
+            + Suppress('---')
             + SkipTo(yaml_end).set_parse_action(
                 lambda t: yaml.safe_load(t[0])  # pyright: ignore
             )
@@ -102,10 +106,18 @@ test_line = Group(
 bail_line = Group(
     CaselessLiteral('Bail out!')('BAIL') + empty + Optional(rest_of_line)('reason')
 )
-tap_parser = Optional(Group(Suppress(SkipTo(version)) + version)('version') + NL) + Optional(
-    Group(plan)('plan') + NL,
-) & Group(OneOrMore((test_line | Suppress(SkipTo(test_line)) + test_line | bail_line) + NL))(
-    'tests',
+subtest_line = Optional(subtest + NL + INDENT + Optional(plan + NL) & OneOrMore(test_line))
+tap_parser = (
+    Optional(Group(Suppress(SkipTo(version)) + version)('version') + NL)
+    + Optional(
+        Group(plan)('plan') + NL,
+    )
+    & Group(
+        OneOrMore((test_line | Suppress(SkipTo(test_line)) + test_line | bail_line) + NL)
+    )(
+        'tests',
+    )
+    & Optional(INDENT) + subtest_line('subtests')
 )
 
 
@@ -141,7 +153,13 @@ def iter_diagnostics(d: dict[int, Any]) -> None:
 
 class TAPSummary:
     """Summarize a parsed TAP stream."""
+
     def __init__(self: Self, results: ParseResults) -> None:  # noqa: C901
+        """Initialize with parsed TAP data.
+
+        :param results: A parsed TAP stream
+        :type results: ParseResults
+        """
         self.passed_tests = []
         self.failed_tests = []
         self.skipped_tests = []

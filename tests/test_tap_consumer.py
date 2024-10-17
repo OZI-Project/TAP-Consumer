@@ -32,6 +32,9 @@ not ok
    ...
 ok
 ok
+# Subtest: x
+    1..1
+    ok
 ssssssssssssssssssss
 ok
    ---
@@ -53,7 +56,7 @@ ok
 # |      |  G   |  R   |  G   |
 # +------+------+------+------+
 ok - board has 7 tiles + starter tile
-1..9
+1..10
 """
     test4 = """\
 1..4
