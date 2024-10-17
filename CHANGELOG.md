@@ -1,4 +1,20 @@
 # TAP-Consumer CHANGELOG
+## 0.0.2 (2024-10-17)
+
+
+### Fixes
+
+
+* fix: stop dumping raw test results — rjdbcm <rjdbcm@outlook.com>
+([`8d67172`](https://github.com/OZI-Project/TAP-Consumer/commit/8d67172f4718643e7680b19f0737c287927348a3))
+
+
+### Performance improvements
+
+
+* perf: add YAML diagnostics summary — rjdbcm <rjdbcm@outlook.com>
+([`7a1f27a`](https://github.com/OZI-Project/TAP-Consumer/commit/7a1f27a51bb171e28ab26ea1c798b143709dc609))
+
 ## 0.0.1 (2024-10-16)
 
 
