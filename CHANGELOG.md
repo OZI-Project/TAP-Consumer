@@ -1,4 +1,13 @@
 # TAP-Consumer CHANGELOG
+## 0.0.3 (2024-10-17)
+
+
+### Fixes
+
+
+* fix: bail out is now caseless — rjdbcm <rjdbcm@outlook.com>
+([`eb7b17e`](https://github.com/OZI-Project/TAP-Consumer/commit/eb7b17ec26b1d713fc5f9f396b5c1a6ba40720bc))
+
 ## 0.0.2 (2024-10-17)
 
 
