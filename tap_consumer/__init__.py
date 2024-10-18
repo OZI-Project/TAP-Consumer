@@ -243,7 +243,9 @@ class TAPSummary:
         )
 
     def summary(  # noqa: C901
-        self: Self, show_passed: bool = False, show_all: bool = False
+        self: Self,
+        show_passed: bool = False,
+        show_all: bool = False,
     ) -> str:
         """Get the summary of a TAP stream.
 
@@ -255,7 +257,7 @@ class TAPSummary:
         :rtype: str
         """
         test_list_str = lambda tl: '[' + ','.join(str(t.num) for t in tl) + ']'  # noqa: E731
-        summary_text = [f'TAP v{self.version}']
+        summary_text = []
         if show_passed or show_all:
             summary_text.append(f'PASSED: {test_list_str(self.passed_tests)}')  # type: ignore
         else:  # pragma: no cover
