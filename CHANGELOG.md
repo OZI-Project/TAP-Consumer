@@ -1,4 +1,29 @@
 # TAP-Consumer CHANGELOG
+## 0.0.4 (2024-10-18)
+
+
+### Fixes
+
+
+* fix: no longer print TAP version in summary — rjdbcm <rjdbcm@outlook.com>
+([`1ae30bc`](https://github.com/OZI-Project/TAP-Consumer/commit/1ae30bc41b110c8c29cfc60749a15f2d2433229b))
+
+* fix: add support for subtests — rjdbcm <rjdbcm@outlook.com>
+([`cb4e572`](https://github.com/OZI-Project/TAP-Consumer/commit/cb4e5725f6a8a032a77f670d48c65251e1ac9852))
+
+
+### Performance improvements
+
+
+* perf: add stubs — rjdbcm <rjdbcm@outlook.com>
+([`6ab1b0b`](https://github.com/OZI-Project/TAP-Consumer/commit/6ab1b0b43b9ed848448b7d8ecb13596acdfcf211))
+
+* perf: add docstrings — rjdbcm <rjdbcm@outlook.com>
+([`2400dde`](https://github.com/OZI-Project/TAP-Consumer/commit/2400dde14e2a43d9d4a82a3a7e8ac0326543a4c5))
+
+* perf: refactor to allow method chaining — rjdbcm <rjdbcm@outlook.com>
+([`057c5d0`](https://github.com/OZI-Project/TAP-Consumer/commit/057c5d0ed4e8fd894f4cffff149a02516fee4304))
+
 ## 0.0.3 (2024-10-17)
 
 
