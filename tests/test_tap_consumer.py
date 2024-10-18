@@ -38,7 +38,7 @@ ok
 ssssssssssssssssssss
 ok
    ---
-   yaml-key:
+   yaml-key2:
       nested-yaml-key: val
    ...
 ok
