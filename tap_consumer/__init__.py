@@ -29,7 +29,8 @@
 # Modified to ignore non-TAP input and handle YAML diagnostics
 # Copyright 2024, Eden Ross Duff, MSc
 import sys
-from typing import Any
+from typing import Mapping
+from typing import TypeAlias
 
 import yaml
 from pyparsing import CaselessLiteral
@@ -44,6 +45,7 @@ from pyparsing import ParseResults
 from pyparsing import Regex
 from pyparsing import SkipTo
 from pyparsing import Suppress
+from pyparsing import White
 from pyparsing import Word
 from pyparsing import empty
 from pyparsing import nums
@@ -60,7 +62,7 @@ __all__ = ['tap_parser', 'TAPTest', 'TAPSummary']
 # whitespace to just spaces and tabs
 ParserElement.set_default_whitespace_chars(' \t')
 NL = LineEnd().suppress()  # type: ignore
-
+INDENT = Suppress(OneOrMore(White(' ', exact=4)))
 integer = Word(nums)
 plan = '1..' + integer('ubound')
 
@@ -78,7 +80,9 @@ directive = Group(
         | FollowedBy(SKIP) + rest_of_line.copy().set_parse_action(lambda t: ['SKIP', t[0]])
     ),
 )
-
+subtest = Optional(Suppress('# Subtest') + Optional(Suppress(':') + rest_of_line))(
+    'subtest_name'
+)
 comment_line = Suppress('#') + empty + rest_of_line
 version = Suppress('TAP version') + Word(nums[1:], nums, as_keyword=True)
 yaml_end = Suppress('...')
@@ -91,7 +95,8 @@ test_line = Group(
     + Optional(
         NL
         + Group(
-            Suppress('---')
+            Optional(INDENT)
+            + Suppress('---')
             + SkipTo(yaml_end).set_parse_action(
                 lambda t: yaml.safe_load(t[0])  # pyright: ignore
             )
@@ -102,15 +107,30 @@ test_line = Group(
 bail_line = Group(
     CaselessLiteral('Bail out!')('BAIL') + empty + Optional(rest_of_line)('reason')
 )
-tap_parser = Optional(Group(Suppress(SkipTo(version)) + version)('version') + NL) + Optional(
-    Group(plan)('plan') + NL,
-) & Group(OneOrMore((test_line | Suppress(SkipTo(test_line)) + test_line | bail_line) + NL))(
-    'tests',
+subtest_line = Optional(subtest + NL + INDENT + Optional(plan + NL) & OneOrMore(test_line))
+tap_parser = (
+    Optional(Group(Suppress(SkipTo(version)) + version)('version') + NL)
+    + Optional(
+        Group(plan)('plan') + NL,
+    )
+    & Group(
+        OneOrMore((test_line | Suppress(SkipTo(test_line)) + test_line | bail_line) + NL)
+    )(
+        'tests',
+    )
+    & Optional(INDENT) + subtest_line('subtests')
 )
 
 
 class TAPTest:
+    """A single TAP test point."""
+
     def __init__(self: Self, results: ParseResults) -> None:
+        """Create a test point.
+
+        :param results: parsed TAP stream
+        :type results: ParseResults
+        """
         self.num = results.test_number
         self.description = results.description if results.description else None
         self.passed = results.passed == 'ok'
@@ -122,31 +142,63 @@ class TAPTest:
 
     @classmethod
     def bailed_test(cls: type[Self], num: int) -> 'TAPTest':
+        """Create a bailed test.
+
+        :param num: the test number
+        :type num: int
+        :return: a bailed TAPTest object
+        :rtype: TAPTest
+        """
         ret = TAPTest(empty.parse_string(''))
         ret.num = num
         ret.skipped = True
         return ret
 
 
-def iter_diagnostics(d: dict[int, Any]) -> None:
+Diagnostics: TypeAlias = Mapping[
+    int | str, str | list[Mapping[int | str, str]] | Mapping[int | str, str]
+]
+
+
+def iter_diagnostics(
+    d: Diagnostics,
+    text: list[str] | None = None,
+) -> str:
+    """Iterate through a dictionary of YAML diagnostics.
+
+    :param d: parsed YAML
+    :type d: Diagnostics
+    :param text: text to populate, optional
+    :type text: list[str] | None
+    """
+    text = [] if text is None else text
     for k, v in d.items():
         if isinstance(v, dict):
-            iter_diagnostics(v)
+            text.append(f'{k}:')
+            iter_diagnostics(v, text)
         elif isinstance(v, list):
             for i in v:
-                iter_diagnostics(i)
+                (iter_diagnostics(i, text))
         else:
-            print('{0}: {1}'.format(k, v))
+            text.append(f'{k}: {"" if v is None else v}'.strip())
+    return '\n'.join(text)
 
 
 class TAPSummary:
+    """Summarize a parsed TAP stream."""
+
     def __init__(self: Self, results: ParseResults) -> None:  # noqa: C901
-        self.passed_tests = []
-        self.failed_tests = []
-        self.skipped_tests = []
-        self.todo_tests = []
-        self.bonus_tests = []
-        self.yaml_diagnostics = {}
+        """Initialize with parsed TAP data.
+
+        :param results: A parsed TAP stream
+        :type results: ParseResults
+        """
+        self.passed_tests: list[TAPTest] = []
+        self.failed_tests: list[TAPTest] = []
+        self.skipped_tests: list[TAPTest] = []
+        self.todo_tests: list[TAPTest] = []
+        self.bonus_tests: list[TAPTest] = []
+        self.yaml_diagnostics: Diagnostics = {}
         self.bail = False
         self.version = results.version[0] if results.version else 12
         if results.plan:
@@ -173,7 +225,7 @@ class TAPSummary:
             test = TAPTest(res)  # pyright: ignore
             if test.yaml:
                 self.yaml_diagnostics.update(
-                    {testnum: [{testnum: test.description}] + test.yaml}  # type: ignore
+                    {testnum: [{testnum: test.description} | test.yaml[0]]}  # type: ignore
                 )
             if test.passed:
                 self.passed_tests.append(test)
@@ -191,10 +243,21 @@ class TAPSummary:
         )
 
     def summary(  # noqa: C901
-        self: Self, show_passed: bool = False, show_all: bool = False
+        self: Self,
+        show_passed: bool = False,
+        show_all: bool = False,
     ) -> str:
+        """Get the summary of a TAP stream.
+
+        :param show_passed: show passed tests, defaults to False
+        :type show_passed: bool, optional
+        :param show_all: show all results, defaults to False
+        :type show_all: bool, optional
+        :return: a text summary of a TAP stream
+        :rtype: str
+        """
         test_list_str = lambda tl: '[' + ','.join(str(t.num) for t in tl) + ']'  # noqa: E731
-        summary_text = [f'TAP version: {self.version}']
+        summary_text = []
         if show_passed or show_all:
             summary_text.append(f'PASSED: {test_list_str(self.passed_tests)}')  # type: ignore
         else:  # pragma: no cover
@@ -218,7 +281,7 @@ class TAPSummary:
         else:  # pragma: no cover
             pass
         if self.yaml_diagnostics:
-            iter_diagnostics(self.yaml_diagnostics)
+            summary_text.append(iter_diagnostics(self.yaml_diagnostics))
         else:  # pragma: no cover
             pass
         if self.passed_suite:

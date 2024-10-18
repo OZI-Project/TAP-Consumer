@@ -32,10 +32,13 @@ not ok
    ...
 ok
 ok
+# Subtest: x  # noqa: E800
+    1..1
+    ok
 ssssssssssssssssssss
 ok
    ---
-   yaml-key:
+   yaml-key2:
       nested-yaml-key: val
    ...
 ok
@@ -53,7 +56,7 @@ ok
 # |      |  G   |  R   |  G   |
 # +------+------+------+------+
 ok - board has 7 tiles + starter tile
-1..9
+1..10
 """
     test4 = """\
 1..4
