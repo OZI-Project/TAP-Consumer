@@ -32,7 +32,7 @@ not ok
    ...
 ok
 ok
-# Subtest: x
+# Subtest: x  # noqa: E800
     1..1
     ok
 ssssssssssssssssssss
