@@ -11,6 +11,11 @@
 TAP-Consumer
 ============
 
+License
+-------
+
+TAP-Consumer is licensed MIT AND Apache-2.0 WITH LLVM-exception, see LICENSE.txt for more information.
+
 .. image:: https://raw.githubusercontent.com/sigstore/community/main/artwork/badge/sigstore_codesigned_purple.png
  :align: right
  :height: 140
