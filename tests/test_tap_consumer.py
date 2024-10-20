@@ -82,8 +82,37 @@ ok 6 - pinged quartz
 ok 7 - pinged gold
 1..7
 """
+    test7 ="""\
+TAP version 14
+1..2
 
-    for test in (test1, test2, test3, test4, test5, test6):
+# Subtest: foo.tap
+    1..2
+    ok 1
+    ok 2 - this passed
+ok 1 - foo.tap
+
+# Subtest: bar.tap
+    ok 1 - object should be a Bar
+    not ok 2 - object.isBar should return true
+    ---
+    found: false
+    wanted: true
+    at:
+        file: test/bar.ts
+        line: 43
+        column: 8
+    ...
+    ok 3 - object can bar bears # TODO
+    1..3
+not ok 2 - bar.tap
+---
+fail: 1
+todo: 1
+...
+"""
+
+    for test in (test1, test2, test3, test4, test5, test6, test7):
         print(test)
         tapResult = tap_parser.parse_string(test)[0]
         print(tapResult.summary(show_all=True))  # pyright: ignore
