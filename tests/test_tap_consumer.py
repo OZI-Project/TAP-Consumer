@@ -1,5 +1,5 @@
 # noqa: INP001
-from tap_consumer import tap_parser
+from tap_consumer import tap_document
 
 
 def test_examples() -> None:
