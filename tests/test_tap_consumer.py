@@ -1,5 +1,5 @@
 # noqa: INP001
-from tap_consumer import tap_parser
+from tap_consumer import tap_document
 
 
 def test_examples() -> None:
@@ -114,6 +114,6 @@ todo: 1
 
     for test in (test1, test2, test3, test4, test5, test6, test7):
         print(test)
-        tapResult = tap_parser.parse_string(test)[0]
+        tapResult = tap_document.parse_string(test)[0]
         print(tapResult.summary(show_all=True))  # pyright: ignore
         print()
