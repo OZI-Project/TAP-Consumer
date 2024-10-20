@@ -1,4 +1,13 @@
 # TAP-Consumer CHANGELOG
+## 0.0.7 (2024-10-20)
+
+
+### Fixes
+
+
+* fix: update index metadata — rjdbcm <rjdbcm@outlook.com>
+([`8f08fd5`](https://github.com/OZI-Project/TAP-Consumer/commit/8f08fd54841a41ac4121c4c787e09b4e72e65588))
+
 ## 0.0.6 (2024-10-20)
 
 
