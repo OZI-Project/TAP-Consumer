@@ -1,4 +1,60 @@
 # TAP-Consumer CHANGELOG
+## 0.0.5 (2024-10-20)
+
+
+### Fixes
+
+
+* fix: correct import name — rjdbcm <rjdbcm@outlook.com>
+([`c05bd25`](https://github.com/OZI-Project/TAP-Consumer/commit/c05bd25c0333f80b7124c4d6d32a7f28121f2a07))
+
+* fix: correct import name — rjdbcm <rjdbcm@outlook.com>
+([`2b43d66`](https://github.com/OZI-Project/TAP-Consumer/commit/2b43d66acfe119a8601dd7d706d2d1fd2eac9005))
+
+* fix: sync stubs — rjdbcm <rjdbcm@outlook.com>
+([`41a3ac4`](https://github.com/OZI-Project/TAP-Consumer/commit/41a3ac4482b3013ef8ea4053c5f66c75ca85c08a))
+
+* fix: lint — rjdbcm <rjdbcm@outlook.com>
+([`1bc077b`](https://github.com/OZI-Project/TAP-Consumer/commit/1bc077b5053c2fce230dc95e04f5d93c0858c6f7))
+
+* fix: subtests ignored — rjdbcm <rjdbcm@outlook.com>
+([`6b63a42`](https://github.com/OZI-Project/TAP-Consumer/commit/6b63a4252b6014fb28a1ab41270c4e34fed67a9d))
+
+* fix: update __init__.pyi to include MIT notice — Eden Ross Duff, MSc, DDiv <rjdbcm@outlook.com>
+([`dd65042`](https://github.com/OZI-Project/TAP-Consumer/commit/dd650429062d16865f7dae253f323d40d20ff552))
+
+
+### Performance improvements
+
+
+* perf: add test — rjdbcm <rjdbcm@outlook.com>
+([`5c16443`](https://github.com/OZI-Project/TAP-Consumer/commit/5c16443d2e18e140fb80b34e69f4eece2e8157b2))
+
+
+### Unknown
+
+
+* Update README — Eden Ross Duff, MSc, DDiv <rjdbcm@outlook.com>
+([`8e9876f`](https://github.com/OZI-Project/TAP-Consumer/commit/8e9876f9897b14221fe0033de89d2237652eb6c8))
+
+* Create CODE_OF_CONDUCT.md — Eden Ross Duff, MSc, DDiv <rjdbcm@outlook.com>
+([`fdba985`](https://github.com/OZI-Project/TAP-Consumer/commit/fdba98539ea17fcd73d3684369695afbd8feb871))
+
+* Update README — Eden Ross Duff, MSc, DDiv <rjdbcm@outlook.com>
+([`d7b1275`](https://github.com/OZI-Project/TAP-Consumer/commit/d7b12755ae6418528bb6684db8ecab3d53491d49))
+
+* Update LICENSE.txt — Eden Ross Duff, MSc, DDiv <rjdbcm@outlook.com>
+([`d614ae5`](https://github.com/OZI-Project/TAP-Consumer/commit/d614ae5f17c642f0e74c70df68dbe349bedc9ef1))
+
+* Update LICENSE.txt — Eden Ross Duff, MSc, DDiv <rjdbcm@outlook.com>
+([`2531a3b`](https://github.com/OZI-Project/TAP-Consumer/commit/2531a3b7bbb8b34f79bdb33aed7ee2c62f29ccd1))
+
+* Update LICENSE.txt — Eden Ross Duff, MSc, DDiv <rjdbcm@outlook.com>
+([`177a63d`](https://github.com/OZI-Project/TAP-Consumer/commit/177a63d215ad82357ca1c9bf51cf3e57201f868e))
+
+* Update LICENSE.txt — Eden Ross Duff, MSc, DDiv <rjdbcm@outlook.com>
+([`87d9d9d`](https://github.com/OZI-Project/TAP-Consumer/commit/87d9d9d7c358a95e7e435a37e8e851c7d438b654))
+
 ## 0.0.4 (2024-10-18)
 
 
