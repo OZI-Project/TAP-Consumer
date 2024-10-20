@@ -33,10 +33,11 @@ from typing import Mapping
 from typing import TypeAlias
 
 import yaml
-from pyparsing import CaselessLiteral, LineStart
+from pyparsing import CaselessLiteral
 from pyparsing import FollowedBy
 from pyparsing import Group
 from pyparsing import LineEnd
+from pyparsing import LineStart
 from pyparsing import Literal
 from pyparsing import OneOrMore
 from pyparsing import Optional
@@ -85,7 +86,8 @@ version = Suppress('TAP version') + Word(nums[1:], nums, as_keyword=True)
 yaml_end = Suppress('...')
 test_line = Group(
     Optional(OneOrMore(comment_line + NL))('comments')
-    + LineStart() + test_status('passed')
+    + LineStart()
+    + test_status('passed')
     + Optional(integer)('test_number')
     + Optional(description)('description')
     + Optional(directive)('directive')
@@ -104,16 +106,14 @@ test_line = Group(
 bail_line = Group(
     CaselessLiteral('Bail out!')('BAIL') + empty + Optional(rest_of_line)('reason')
 )
-tap_document = (
-    Optional(Group(Suppress(SkipTo(version)) + version)('version') + NL)
-    + Optional(
-        Group(plan)('plan') + NL,
-    )
-    & Group(
-        OneOrMore((Optional(Suppress(SkipTo(test_line))) + test_line | bail_line) + NL)
-    )(
-        'tests',
-    )
+tap_document = Optional(
+    Group(Suppress(SkipTo(version)) + version)('version') + NL
+) + Optional(
+    Group(plan)('plan') + NL,
+) & Group(
+    OneOrMore((Optional(Suppress(SkipTo(test_line))) + test_line | bail_line) + NL)
+)(
+    'tests',
 )
 
 
