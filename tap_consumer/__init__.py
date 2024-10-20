@@ -291,7 +291,7 @@ class TAPSummary:
 
 tap_document.set_parse_action(TAPSummary)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     test1 = """\
 foo bar
 TAP version 14
