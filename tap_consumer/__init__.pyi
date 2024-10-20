@@ -31,12 +31,12 @@ from typing import TypeAlias
 from pyparsing import ParserElement
 from pyparsing import ParseResults
 
-__all__ = ['tap_parser', 'TAPTest', 'TAPSummary']
+__all__ = ['tap_document', 'TAPTest', 'TAPSummary']
 
 Diagnostics: TypeAlias = Mapping[
     int | str, str | list[Mapping[int | str, str]] | Mapping[int | str, str]
 ]
-tap_parser: ParserElement
+tap_document: ParserElement
 
 class TAPTest:
     """A single TAP test point."""
