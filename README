@@ -11,6 +11,13 @@
 TAP-Consumer
 ============
 
+Simple API for parsing TAP version 12+ tests, subtests are currently ignored.
+
+License
+-------
+
+TAP-Consumer is licensed MIT AND Apache-2.0 WITH LLVM-exception, see LICENSE.txt for more information.
+
 .. image:: https://raw.githubusercontent.com/sigstore/community/main/artwork/badge/sigstore_codesigned_purple.png
  :align: right
  :height: 140
