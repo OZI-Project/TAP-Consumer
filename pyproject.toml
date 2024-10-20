@@ -21,21 +21,22 @@ home-page="https://oziproject.dev"
 author="Eden Ross Duff MSc"
 author-email="help@oziproject.dev"
 description-file="README.rst"
-license="Apache-2.0 WITH LLVM-exception"
+license="MIT AND Apache-2.0 WITH LLVM-exception"
 download-url="https://github.com/OZI-Project/TAP-Consumer/archive/refs/tags/{version}.tar.gz"
 keywords="TAP,testing,unittest"
 classifiers=[
     "License :: OSI Approved :: Apache Software License",
+    "License :: OSI Approved :: MIT License",
     "Development Status :: 1 - Planning",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: Implementation :: CPython",
-    "Intended Audience :: Other Audience",
+    "Intended Audience :: Developers",
     "Natural Language :: English",
     "Typing :: Typed",
-    "Environment :: Other Environment",
+    "Environment :: Console",
 ]
 project-urls=[
 ]
