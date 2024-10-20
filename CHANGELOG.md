@@ -1,4 +1,16 @@
 # TAP-Consumer CHANGELOG
+## 0.0.6 (2024-10-20)
+
+
+### Fixes
+
+
+* fix: lint — rjdbcm <rjdbcm@outlook.com>
+([`97d4e0a`](https://github.com/OZI-Project/TAP-Consumer/commit/97d4e0aac83a0a76ad5ef7922db445cf8f1f6e60))
+
+* fix: suppress comments — rjdbcm <rjdbcm@outlook.com>
+([`9994cea`](https://github.com/OZI-Project/TAP-Consumer/commit/9994cea5f721725b35dcff9e7c450f0e726e40d1))
+
 ## 0.0.5 (2024-10-20)
 
 
