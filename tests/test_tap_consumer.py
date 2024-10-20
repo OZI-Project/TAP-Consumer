@@ -82,11 +82,11 @@ ok 6 - pinged quartz
 ok 7 - pinged gold
 1..7
 """
-    test7 ="""\
+    test7 = """\
 TAP version 14
 1..2
 
-# Subtest: foo.tap
+# Subtest: foo.tap  # noqa: E800
     1..2
     ok 1
     ok 2 - this passed
@@ -103,7 +103,7 @@ ok 1 - foo.tap
         line: 43
         column: 8
     ...
-    ok 3 - object can bar bears # TODO
+    ok 3 - object can bar bears # SKIP
     1..3
 not ok 2 - bar.tap
 ---
