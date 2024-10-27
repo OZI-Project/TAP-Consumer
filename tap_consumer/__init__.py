@@ -29,7 +29,9 @@
 # Modified to ignore non-TAP input and handle YAML diagnostics
 # Copyright 2024, Eden Ross Duff, MSc
 import sys
+from collections.abc import Iterable
 from typing import Mapping
+from typing import Protocol
 from typing import TypeAlias
 
 import yaml
@@ -60,11 +62,15 @@ elif sys.version_info < (3, 11):  # pragma: no cover
 
 __all__ = ['tap_document', 'TAPTest', 'TAPSummary']
 
+Diagnostics: TypeAlias = Mapping[
+    int | str, str | list[Mapping[int | str, str]] | Mapping[int | str, str]
+]
 # newlines are significant whitespace, so set default skippable
 # whitespace to just spaces and tabs
 ParserElement.set_default_whitespace_chars(' \t')
 NL = LineEnd().suppress()  # type: ignore
-INDENT = Suppress(OneOrMore(White(' ', exact=4)))
+INDENT4 = Suppress(OneOrMore(White(' ', exact=4)))
+INDENT3 = Suppress(OneOrMore(White(' ', exact=3)))
 integer = Word(nums)
 plan = '1..' + integer('ubound')
 
@@ -103,6 +109,26 @@ test_line = Group(
         )('yaml').set_parse_action(lambda t: t.as_dict()),
     )
 )
+subtest_line = Group(
+    LineStart()
+    + INDENT4
+    + test_status('subtest_passed')
+    + Optional(integer)('subtest_number')
+    + Optional(description)('subtest_description')
+    + Optional(directive)('subtest_directive')
+    + Optional(
+        NL
+        + INDENT4
+        + Group(
+            Suppress('---')
+            + SkipTo(yaml_end).set_parse_action(
+                lambda t: yaml.safe_load(t[0])  # pyright: ignore
+            )
+            + yaml_end,
+        )('subtest_yaml').set_parse_action(lambda t: t.as_dict()),
+    )
+)
+
 
 bail_line = Group(
     CaselessLiteral('Bail out!')('BAIL') + empty + Optional(rest_of_line)('reason')
@@ -114,7 +140,7 @@ tap_document = Optional(
 ) + Optional(
     Group(plan)('plan') + NL,
 ) & Group(
-    OneOrMore((test_line | bail_line | anything | comment) + NL)
+    OneOrMore((test_line | bail_line | subtest_line | anything | comment) + NL)
 )(
     'tests',
 )
@@ -153,35 +179,6 @@ class TAPTest:
         return ret
 
 
-Diagnostics: TypeAlias = Mapping[
-    int | str, str | list[Mapping[int | str, str]] | Mapping[int | str, str]
-]
-
-
-def iter_diagnostics(
-    d: Diagnostics,
-    text: list[str] | None = None,
-) -> str:
-    """Iterate through a dictionary of YAML diagnostics.
-
-    :param d: parsed YAML
-    :type d: Diagnostics
-    :param text: text to populate, optional
-    :type text: list[str] | None
-    """
-    text = [] if text is None else text
-    for k, v in d.items():
-        if isinstance(v, dict):
-            text.append(f'{k}:')
-            iter_diagnostics(v, text)
-        elif isinstance(v, list):
-            for i in v:
-                (iter_diagnostics(i, text))
-        else:
-            text.append(f'{k}: {"" if v is None else v}'.strip())
-    return '\n'.join(text)
-
-
 class TAPSummary:
     """Summarize a parsed TAP stream."""
 
@@ -192,6 +189,7 @@ class TAPSummary:
         :type results: ParseResults
         """
         self.passed_tests: list[TAPTest] = []
+        self.subtests: list[TAPTest] = []
         self.failed_tests: list[TAPTest] = []
         self.skipped_tests: list[TAPTest] = []
         self.todo_tests: list[TAPTest] = []
@@ -203,6 +201,7 @@ class TAPSummary:
             expected = list(range(1, int(results.plan.ubound) + 1))  # pyright: ignore
         else:
             expected = list(range(1, len(results.tests) + 1))
+        subtestnum = 0
         for i, res in enumerate(results.tests):
             # test for bail out
             if hasattr(res, 'BAIL') and res.BAIL:  # pyright: ignore
@@ -212,19 +211,21 @@ class TAPSummary:
                 self.skipped_tests += [TAPTest.bailed_test(ii) for ii in expected[i:]]
                 self.bail_reason = res.reason  # pyright: ignore
                 break
+            if res.subtest_passed != '':  # pyright: ignore
+                subtestnum += 1
+                self.subtests.append(TAPTest(res))  # pyright: ignore
+                continue
 
             testnum = i + 1
             if res.test_number != '':  # pragma: no cover  # pyright: ignore
-                if testnum != int(res.test_number):  # pyright: ignore
+                if testnum - subtestnum != int(res.test_number):  # pyright: ignore
                     print('ERROR! test %(test_number)s out of sequence' % res)
                 testnum = int(res.test_number)  # pyright: ignore
             res['test_number'] = testnum  # pyright: ignore
 
             test = TAPTest(res)  # pyright: ignore
             if test.yaml:
-                self.yaml_diagnostics.update(
-                    {testnum: [{testnum: test.description} | test.yaml[0]]}  # type: ignore
-                )
+                self.yaml_diagnostics.update({testnum: test.yaml[0]})  # type: ignore
             if test.passed:
                 self.passed_tests.append(test)
             else:
@@ -279,7 +280,11 @@ class TAPSummary:
         else:  # pragma: no cover
             pass
         if self.yaml_diagnostics:
-            summary_text.append(iter_diagnostics(self.yaml_diagnostics))
+            summary_text.append(
+                yaml.safe_dump(
+                    self.yaml_diagnostics, explicit_start=True, explicit_end=True
+                ).strip()
+            )
         else:  # pragma: no cover
             pass
         if self.passed_suite:
@@ -384,21 +389,21 @@ ok 1 - foo.tap
 # Subtest: bar.tap
     ok 1 - object should be a Bar
     not ok 2 - object.isBar should return true
-    ---
-    found: false
-    wanted: true
-    at:
-        file: test/bar.ts
-        line: 43
-        column: 8
-    ...
+       ---
+       found: false
+       wanted: true
+       at:
+           file: test/bar.ts
+           line: 43
+           column: 8
+       ...
     ok 3 - object can bar bears # SKIP
     1..3
 not ok 2 - bar.tap
----
-fail: 1
-todo: 1
-...
+   ---
+   fail: 1
+   todo: 1
+   ...
 """
 
     for test in (test1, test2, test3, test4, test5, test6, test7):
