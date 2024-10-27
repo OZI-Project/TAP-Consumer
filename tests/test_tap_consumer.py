@@ -95,21 +95,21 @@ ok 1 - foo.tap
 # Subtest: bar.tap
     ok 1 - object should be a Bar
     not ok 2 - object.isBar should return true
-    ---
-    found: false
-    wanted: true
-    at:
-        file: test/bar.ts
-        line: 43
-        column: 8
-    ...
+       ---
+       found: false
+       wanted: true
+       at:
+           file: test/bar.ts
+           line: 43
+           column: 8
+       ...
     ok 3 - object can bar bears # SKIP
     1..3
 not ok 2 - bar.tap
----
-fail: 1
-todo: 1
-...
+   ---
+   fail: 1
+   todo: 1
+   ...
 """
 
     for test in (test1, test2, test3, test4, test5, test6, test7):
