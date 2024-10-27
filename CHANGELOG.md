@@ -1,4 +1,20 @@
 # TAP-Consumer CHANGELOG
+## 0.0.8 (2024-10-27)
+
+
+### Fixes
+
+
+* fix: subtests parsed but ignored — rjdbcm <rjdbcm@outlook.com>
+([`a44afda`](https://github.com/OZI-Project/TAP-Consumer/commit/a44afda603655924cfdb3e50c6b52e97c9367463))
+
+
+### Performance improvements
+
+
+* perf: serialize parsed subtests — rjdbcm <rjdbcm@outlook.com>
+([`d6b9f46`](https://github.com/OZI-Project/TAP-Consumer/commit/d6b9f46210db45b0ecd4f37a7c363e69c000cb85))
+
 ## 0.0.7 (2024-10-20)
 
 
