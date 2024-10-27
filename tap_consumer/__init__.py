@@ -29,9 +29,7 @@
 # Modified to ignore non-TAP input and handle YAML diagnostics
 # Copyright 2024, Eden Ross Duff, MSc
 import sys
-from collections.abc import Iterable
 from typing import Mapping
-from typing import Protocol
 from typing import TypeAlias
 
 import yaml
@@ -39,9 +37,7 @@ from pyparsing import CaselessLiteral
 from pyparsing import FollowedBy
 from pyparsing import Group
 from pyparsing import LineEnd
-from pyparsing import LineStart
 from pyparsing import Literal
-from pyparsing import NotAny
 from pyparsing import OneOrMore
 from pyparsing import Optional
 from pyparsing import ParserElement
@@ -51,6 +47,7 @@ from pyparsing import SkipTo
 from pyparsing import Suppress
 from pyparsing import White
 from pyparsing import Word
+from pyparsing import ZeroOrMore
 from pyparsing import empty
 from pyparsing import nums
 from pyparsing import rest_of_line
@@ -69,7 +66,7 @@ Diagnostics: TypeAlias = Mapping[
 # whitespace to just spaces and tabs
 ParserElement.set_default_whitespace_chars(' \t')
 NL = LineEnd().suppress()  # type: ignore
-INDENT4 = Suppress(OneOrMore(White(' ', exact=4)))
+INDENT4 = OneOrMore(White(' ', exact=4))
 INDENT3 = Suppress(OneOrMore(White(' ', exact=3)))
 integer = Word(nums)
 plan = '1..' + integer('ubound')
@@ -92,8 +89,9 @@ comment_line = Suppress('#' + White(' ')) + rest_of_line
 version = Suppress('TAP version') + Word(nums[1:], nums, as_keyword=True)
 yaml_end = Suppress('...')
 test_line = Group(
-    LineStart()
-    + NotAny(White())
+    ZeroOrMore(White(' ', exact=4).leave_whitespace()).set_parse_action(
+        lambda t: len(t.as_list())
+    )('subtest_level')
     + test_status('passed')
     + Optional(integer)('test_number')
     + Optional(description)('description')
@@ -109,26 +107,6 @@ test_line = Group(
         )('yaml').set_parse_action(lambda t: t.as_dict()),
     )
 )
-subtest_line = Group(
-    LineStart()
-    + INDENT4
-    + test_status('subtest_passed')
-    + Optional(integer)('subtest_number')
-    + Optional(description)('subtest_description')
-    + Optional(directive)('subtest_directive')
-    + Optional(
-        NL
-        + INDENT4
-        + Group(
-            Suppress('---')
-            + SkipTo(yaml_end).set_parse_action(
-                lambda t: yaml.safe_load(t[0])  # pyright: ignore
-            )
-            + yaml_end,
-        )('subtest_yaml').set_parse_action(lambda t: t.as_dict()),
-    )
-)
-
 
 bail_line = Group(
     CaselessLiteral('Bail out!')('BAIL') + empty + Optional(rest_of_line)('reason')
@@ -140,7 +118,7 @@ tap_document = Optional(
 ) + Optional(
     Group(plan)('plan') + NL,
 ) & Group(
-    OneOrMore((test_line | bail_line | subtest_line | anything | comment) + NL)
+    OneOrMore((test_line | bail_line | anything | comment) + NL)
 )(
     'tests',
 )
@@ -155,6 +133,7 @@ class TAPTest:
         :param results: parsed TAP stream
         :type results: ParseResults
         """
+        self.subtest_level = results.subtest_level
         self.num = results.test_number
         self.description = results.description if results.description else None
         self.passed = results.passed == 'ok'
@@ -211,7 +190,8 @@ class TAPSummary:
                 self.skipped_tests += [TAPTest.bailed_test(ii) for ii in expected[i:]]
                 self.bail_reason = res.reason  # pyright: ignore
                 break
-            if res.subtest_passed != '':  # pyright: ignore
+
+            if res.subtest_level > 0:  # pyright: ignore
                 subtestnum += 1
                 self.subtests.append(TAPTest(res))  # pyright: ignore
                 continue
